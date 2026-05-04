@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GRAMMARBLITZ — MULTIPLAYER</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  display:flex;
+  flex-direction:column;
+  background:#050510;
+  animation:crt 0.15s infinite;
+  box-shadow:
+    inset 0 0 120px rgba(0,0,0,0.9),
+    inset 0 0 40px rgba(0,0,0,0.6);
+}
+
+/* CRT */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:linear-gradient(rgba(255,255,255,0.04) 50%, transparent 50%);
+  background-size:100% 3px;
+  pointer-events:none;
+  mix-blend-mode:overlay;
+  opacity:0.4;
+}
+
+@keyframes crt{
+  0%{opacity:0.98}
+  50%{opacity:1}
+  100%{opacity:0.97}
+}
+
+/* screens */
+.screen{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:20px;text-align:center}
+.screen.active{display:flex}
+
+#waiting{background:radial-gradient(ellipse at 30% 20%,#0d0d2e 0%,var(--bg) 65%)}
+#countdown{background:radial-gradient(ellipse at center,#0d0d2e 0%,var(--bg) 70%)}
+#game{gap:0;padding:0;justify-content:flex-start;align-items:stretch;text-align:left}
+#podium{background:radial-gradient(ellipse at 50% 80%,#1a2e1a 0%,var(--bg) 60%)}
+
+/* HIT + SHAKE */
+.hit{animation:hitFlash 0.25s}
+@keyframes hitFlash{
+  0%{background:rgba(255,60,60,0.25)}
+  100%{background:transparent}
+}
+
+.shake{animation:shake 0.3s}
+@keyframes shake{
+  0%{transform:translate(0)}
+  25%{transform:translate(-4px,2px)}
+  50%{transform:translate(4px,-2px)}
+  75%{transform:translate(-2px,2px)}
+  100%{transform:translate(0)}
+}
+
+/* live leaderboard pulse */
+.live-chip.lc-done{
+  opacity:0.6;
+}
+.live-chip.lc-me{
+  border-color:var(--accent3);
+}
+
+/* countdown punch */
+.cd-num{
+  font-family:var(--pixel);
+  font-size:clamp(5rem,22vw,12rem);
+  color:var(--accent);
+  text-shadow:0 0 40px rgba(232,255,71,0.5),6px 6px 0 rgba(0,0,0,0.8);
+  animation:popIn 0.8s ease-out;
+}
+</style>
+</head>
+
+<body>
+
+<div class="screen active" id="waiting">
+  <div class="room-code" id="roomCode">----</div>
+  <div class="player-list" id="playerList"></div>
+  <div id="waitNote">WAITING…</div>
+  <button id="startBtn" style="display:none" onclick="hostStart()">START</button>
+</div>
+
+<div class="screen" id="countdown">
+  <div class="cd-num" id="cdNum">3</div>
+</div>
+
+<div class="screen" id="game"></div>
+
+<div class="screen" id="podium">
+  <div id="podiumWrap"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, off, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+import {
+  CHARS, getMultiRound, loadSession,
+  playClick, playCorrect, playWrong, playTimeout, playVictory,
+  buildGameScreen, buildFeedbackLayer, flashFeedback, renderOptions,
+  setQTag, startTimer, S
+} from './shared.js';
+
+const app = initializeApp({ databaseURL:"https://grammarblitz-12d4d-default-rtdb.europe-west1.firebasedatabase.app" });
+const db = getDatabase(app);
+
+/* BUILD */
+buildGameScreen(document.getElementById('game'), 'multi');
+buildFeedbackLayer();
+
+/* SESSION */
+const session = loadSession();
+const myId = session.myId;
+const roomCode = session.roomCode;
+const roomRef = ref(db, `rooms/${roomCode}`);
+
+let questions=[], qIdx=0, score=0, answered=false;
+
+/* LISTEN */
+onValue(roomRef, snap=>{
+  const room=snap.val();
+  if(!room) return;
+
+  if(room.status==='countdown') showCountdown(room.countdown);
+  if(room.status==='playing'){ questions=JSON.parse(room.questions); showGame(room); }
+});
+
+/* GAME */
+function showGame(room){
+  show('game');
+  renderQ(room);
+}
+
+function renderQ(room){
+  const q=questions[qIdx];
+  answered=false;
+
+  setQTag(q.tag);
+  document.getElementById('sentenceBox').innerHTML =
+    q.sentence.replace('___','<span id="gapSpan">___</span>');
+
+  renderOptions(q.options,(btn,opt)=>answer(btn,opt,q));
+
+  startTimer(15, timeout);
+}
+
+async function answer(btn, choice, q){
+  if(answered) return;
+  answered=true;
+  playClick();
+
+  const ok = choice===q.answer;
+
+  if(ok){
+    score+=10;
+    playCorrect();
+
+    const s=document.getElementById('scoreVal');
+    s.textContent=score;
+    s.style.transform='scale(1.2)';
+    setTimeout(()=>s.style.transform='scale(1)',120);
+
+  } else {
+    playWrong();
+
+    document.body.classList.add('hit');
+    setTimeout(()=>document.body.classList.remove('hit'),200);
+
+    const g=document.getElementById('game');
+    g.classList.add('shake');
+    setTimeout(()=>g.classList.remove('shake'),300);
+  }
+
+  await update(ref(db,`rooms/${roomCode}/players/${myId}`),{
+    score, answered:true
+  });
+}
+
+function timeout(){
+  if(answered) return;
+  answered=true;
+  playTimeout();
+}
+
+/* UI */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showCountdown(n){
+  show('countdown');
+  const el=document.getElementById('cdNum');
+  el.textContent=n;
+  el.style.animation='none';
+  void el.offsetWidth;
+  el.style.animation='popIn 0.8s ease-out';
+}
+
+</script>
+
+</body>
+</html>

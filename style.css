@@ -1,0 +1,495 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --bg:#050510;
+  --surface:#12121a;
+  --surface2:#1a1a26;
+  --border:#2a2a3e;
+
+  --accent:#e8ff47;
+  --accent2:#ff4d6d;
+  --accent3:#47c8ff;
+  --purple:#c47aff;
+  --green:#52d98a;
+
+  --text:#e8e8f0;
+  --muted:#4a4a6a;
+
+  --pixel:'Press Start 2P',monospace;
+  --mono:'Space Mono',monospace;
+}
+
+/* ── BASE ───────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+  height:100%;
+  overflow:hidden;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* Centre and cap width on wide screens */
+body > *{
+  width:100%;
+  max-width:720px;
+}
+
+/* CRT */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:linear-gradient(rgba(255,255,255,0.03) 50%,transparent 50%);
+  background-size:100% 3px;
+  pointer-events:none;
+  animation:scan 6s linear infinite;
+}
+
+@keyframes scan{
+  0%{background-position:0 0}
+  100%{background-position:0 100%}
+}
+
+/* ── SCREEN ───────────────────── */
+.screen{
+  display:flex;
+  flex-direction:column;
+  height:100dvh;
+  width:100%;
+  max-width:720px;
+}
+
+#game.screen{
+  justify-content:flex-start;
+  align-items:stretch;
+}
+
+/* ── HUD ─────────────────────── */
+.hud{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.lives{
+  font-size:1rem;
+  letter-spacing:2px;
+  animation: none;
+}
+
+.score-disp{
+  font-family:var(--pixel);
+  color:var(--accent);
+  font-size:0.7rem;
+  transition:transform 0.15s;
+}
+
+.timer-ring{
+  position:relative;
+  width:40px;
+  height:40px;
+}
+
+.timer-bg{
+  fill:none;
+  stroke:var(--border);
+  stroke-width:3;
+}
+
+.timer-fg{
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:3;
+  stroke-linecap:round;
+  transform:rotate(-90deg);
+  transform-origin:50% 50%;
+  transition:stroke-dashoffset 0.9s linear, stroke 0.3s;
+}
+
+.timer-txt{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--pixel);
+  font-size:0.45rem;
+  color:var(--text);
+}
+
+/* ── PROGRESS ────────────────── */
+.progress-wrap{
+  width:100%;
+  height:4px;
+  background:var(--border);
+}
+
+.progress-fill{
+  height:100%;
+  background:var(--accent);
+  transition:width 0.3s ease;
+}
+
+/* ── Q META ──────────────────── */
+.q-meta{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.q-counter{
+  font-family:var(--pixel);
+  font-size:0.55rem;
+  color:var(--muted);
+}
+
+.q-tag{
+  font-family:var(--pixel);
+  font-size:0.45rem;
+  padding:4px 8px;
+  border:2px solid var(--border);
+  color:var(--muted);
+}
+
+.tag-pp{ border-color:var(--accent3); color:var(--accent3); }
+.tag-ps{ border-color:var(--accent); color:var(--accent); }
+.tag-sub{ border-color:var(--purple); color:var(--purple); }
+.tag-modal{ border-color:var(--green); color:var(--green); }
+
+/* ── TRANSMISSION ────────────── */
+.transmission{
+  font-family:var(--mono);
+  font-size:clamp(0.65rem,1.4vw,0.78rem);
+  color:var(--muted);
+  opacity:0.6;
+  min-height:1.2em;
+  letter-spacing:0.03em;
+  transition:opacity 0.4s ease;
+}
+
+/* ── CHAR AREA ───────────────── */
+.char-area{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.char-speech{
+  font-size:0.82rem;
+  color:var(--muted);
+  font-style:italic;
+}
+
+/* ── HINT ────────────────────── */
+.hint-txt{
+  font-size:0.82rem;
+  color:var(--muted);
+  min-height:1.2em;
+}
+
+/* ── LIVE BOARD (multiplayer) ── */
+.live-board{
+  padding:8px 18px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  background:var(--surface);
+  border-bottom:2px solid var(--border);
+}
+
+.live-chip{
+  font-family:var(--pixel);
+  font-size:0.45rem;
+  padding:4px 8px;
+  border:2px solid var(--border);
+  color:var(--text);
+}
+
+/* ── WAIT MSG ────────────────── */
+.wait-msg{
+  font-family:var(--pixel);
+  font-size:0.55rem;
+  color:var(--muted);
+  text-align:center;
+  display:none;
+}
+
+/* ── MUTE BUTTON ─────────────── */
+.mute-btn{
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  background:var(--surface);
+  border:2px solid var(--border);
+  color:var(--text);
+  font-size:1.1rem;
+  width:38px;
+  height:38px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ── ROOM CODE (multiplayer) ── */
+.room-code{
+  font-family:var(--pixel);
+  font-size:clamp(2rem,8vw,4rem);
+  color:var(--accent);
+  text-shadow:0 0 20px var(--accent);
+  letter-spacing:8px;
+}
+
+.player-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:200px;
+}
+
+/* ── GAME TITLE ──────────────── */
+.game-title{
+  font-family:var(--pixel);
+  font-size:0.6rem;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+/* ── POP ANIM ────────────────── */
+@keyframes popIn{
+  0%{ transform:scale(0.4); opacity:0; }
+  70%{ transform:scale(1.1); }
+  100%{ transform:scale(1); opacity:1; }
+}
+
+
+.game-header{
+  width:100%;
+  background:var(--surface);
+  border-bottom:3px solid var(--border);
+  padding:clamp(8px,1.5vh,14px) clamp(12px,3vw,20px);
+  display:flex;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+
+.game-title{
+  font-family:var(--pixel);
+  font-size:0.6rem;
+  color:var(--muted);
+}
+
+.score-disp{
+  font-family:var(--pixel);
+  color:var(--accent);
+  transition:0.2s;
+}
+
+/* ── GAME BODY ───────────────── */
+.game-body{
+  flex:1;
+  padding:clamp(12px,2vh,24px) clamp(14px,4vw,32px);
+  display:flex;
+  flex-direction:column;
+  gap:clamp(10px,1.8vh,18px);
+  overflow-y:auto;
+  min-height:0;
+}
+
+/* ── SENTENCE (MAIN EVENT) ───── */
+.sentence-box{
+  width:100%;
+  background:var(--surface);
+  border:3px solid var(--border);
+  padding:clamp(14px,2.5vh,26px) clamp(14px,3vw,26px);
+  font-size:clamp(0.95rem,2.5vw,1.45rem);
+  line-height:2;
+  min-height:clamp(60px,12vh,110px);
+  box-shadow:6px 6px 0 rgba(0,0,0,0.7);
+  transition:0.2s;
+}
+
+/* CORRECT FLASH */
+.sentence-box.correct{
+  border-color:var(--green);
+  box-shadow:0 0 25px var(--green);
+}
+
+/* WRONG HIT */
+.sentence-box.wrong{
+  border-color:var(--accent2);
+  animation:shake 0.3s;
+}
+
+/* ── GAP ─────────────────────── */
+.gap{
+  border-bottom:3px solid var(--accent);
+  color:var(--accent);
+  font-weight:700;
+}
+
+/* ── OPTIONS ─────────────────── */
+.options-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:clamp(8px,1.5vw,14px);
+}
+
+@media(max-width:400px){
+  .options-grid{ grid-template-columns:1fr; }
+}
+
+.opt-btn{
+  background:var(--surface);
+  border:3px solid var(--border);
+  padding:clamp(12px,2vh,18px) clamp(10px,2vw,16px);
+  font-size:clamp(0.8rem,1.8vw,1rem);
+  cursor:pointer;
+  transition:0.15s;
+  box-shadow:4px 4px 0 rgba(0,0,0,0.6);
+}
+
+/* HOVER = slight glow */
+.opt-btn:hover{
+  border-color:var(--accent);
+  box-shadow:0 0 10px var(--accent);
+}
+
+/* CORRECT = EXPLOSION */
+.opt-btn.ok{
+  border-color:var(--green);
+  color:var(--green);
+  animation:pop 0.2s ease;
+  box-shadow:0 0 20px var(--green);
+}
+
+/* WRONG = HIT */
+.opt-btn.bad{
+  border-color:var(--accent2);
+  color:var(--accent2);
+  animation:shake 0.3s;
+}
+
+/* ── NEXT BUTTON ─────────────── */
+.next-btn{
+  background:var(--accent);
+  color:#000;
+  padding:clamp(14px,2.2vh,20px);
+  padding-bottom:max(clamp(14px,2.2vh,20px), env(safe-area-inset-bottom));
+  font-family:var(--pixel);
+  font-size:clamp(0.55rem,1.5vw,0.7rem);
+  border:none;
+  width:100%;
+  cursor:pointer;
+  display:none;
+  flex-shrink:0;
+}
+
+.next-btn.show{
+  display:block;
+  animation:pulse 1s infinite;
+}
+
+/* ── FEEDBACK ───────────────── */
+.flash{
+  position:fixed;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:10px 22px;
+  font-family:var(--pixel);
+  opacity:0;
+  transition:0.2s;
+}
+
+.flash.show{opacity:1}
+
+/* COMBO */
+.streak{
+  position:fixed;
+  top:70px;
+  right:20px;
+  background:var(--accent2);
+  color:#fff;
+  padding:6px 10px;
+  font-family:var(--pixel);
+  animation:pop 0.2s;
+}
+
+/* ── ANIMATIONS ───────────────── */
+
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
+@keyframes pop{
+  0%{transform:scale(0.9)}
+  100%{transform:scale(1)}
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+}
+
+/* ── EXPLANATION ─────────────── */
+.expl{
+  font-size:0.82rem;
+  color:var(--muted);
+  line-height:1.6;
+  min-height:0;
+  overflow:hidden;
+  max-height:0;
+  transition:max-height 0.3s ease, opacity 0.3s ease;
+  opacity:0;
+}
+.expl.show{
+  max-height:200px;
+  opacity:1;
+}
+
+/* ── CORRECT REVEAL (write mode) ─ */
+.correct-reveal{
+  font-family:var(--mono);
+  font-size:1rem;
+  padding:8px 12px;
+  border-left:4px solid var(--border);
+}
+.correct-reveal.ok{ border-color:var(--green); color:var(--green); }
+.correct-reveal.bad{ border-color:var(--accent2); color:var(--accent2); }
+
+/* ── WRITE INPUT ─────────────── */
+.write-input{
+  background:var(--surface);
+  border:3px solid var(--border);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:1rem;
+  padding:12px 16px;
+  width:100%;
+}
+.write-input:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+.write-submit{
+  background:var(--accent);
+  color:#000;
+  font-family:var(--pixel);
+  font-size:0.55rem;
+  padding:14px;
+  cursor:pointer;
+  border:none;
+}

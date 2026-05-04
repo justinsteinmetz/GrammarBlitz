@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GRAMMARBLITZ</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  margin:0;
+  background:#050510;
+  overflow:hidden;
+  font-family:var(--pixel);
+  animation:screenPulse 6s ease-in-out infinite;
+}
+
+/* ── CRT ───────────────────────── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:linear-gradient(rgba(255,255,255,0.03) 50%, transparent 50%);
+  background-size:100% 3px;
+  pointer-events:none;
+  mix-blend-mode:overlay;
+  animation:scan 6s linear infinite;
+}
+
+@keyframes scan{
+  0%{background-position:0 0}
+  100%{background-position:0 100%}
+}
+
+@keyframes screenPulse{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.05)}
+}
+
+/* ── SCREEN ───────────────────── */
+.screen{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100dvh;
+  gap:clamp(12px,2.5vh,22px);
+  text-align:center;
+  padding:0 clamp(16px,5vw,40px);
+  max-width:720px;
+  margin:0 auto;
+  width:100%;
+}
+
+/* ── TITLE ───────────────────── */
+.logo{
+  font-size:clamp(1.6rem,6vw,4rem);
+  color:#e8ff47;
+  letter-spacing:2px;
+  animation:logoPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes logoPulse{
+  0%,100%{
+    text-shadow:0 0 10px #e8ff47,0 0 30px #e8ff47,4px 4px 0 #000;
+  }
+  50%{
+    text-shadow:0 0 20px #e8ff47,0 0 60px #e8ff47,4px 4px 0 #000;
+  }
+}
+
+/* ── LIGHTNING ───────────────── */
+.bolt{
+  font-size:clamp(1.4rem,4vw,2rem);
+  animation:bolt 2.4s infinite;
+}
+@keyframes bolt{
+  0%,90%,100%{transform:scale(1)}
+  92%{transform:scale(1.4) rotate(-6deg)}
+  94%{transform:scale(1)}
+}
+
+/* ── CHARACTERS ─────────────── */
+.char-parade{
+  display:flex;
+  gap:clamp(6px,2vw,12px);
+}
+.parade-char{
+  width:clamp(28px,5vw,40px);
+  height:clamp(32px,5.5vw,44px);
+  animation:float 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 4px rgba(255,255,255,0.1));
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* ── MARQUEE ───────────────── */
+.marquee{
+  width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  border-top:2px solid #e8ff47;
+  border-bottom:2px solid #e8ff47;
+  padding:clamp(4px,1vh,8px) 0;
+}
+.marquee span{
+  display:inline-block;
+  padding-left:100%;
+  animation:scroll 14s linear infinite;
+}
+@keyframes scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-100%)}
+}
+
+/* ── INSERT COIN ───────────── */
+.coin{
+  color:#e8ff47;
+  font-size:clamp(1rem,3vw,1.4rem);
+  animation:coinPulse 0.8s infinite;
+}
+
+@keyframes coinPulse{
+  0%,100%{opacity:1; transform:scale(1)}
+  50%{opacity:0.3; transform:scale(1.1)}
+}
+
+/* ── BUTTONS ───────────────── */
+.home-btns{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(8px,1.5vh,14px);
+  width:100%;
+}
+
+button{
+  padding:clamp(10px,1.8vh,16px) clamp(16px,4vw,28px);
+  font-family:var(--pixel);
+  font-size:clamp(0.5rem,1.4vw,0.65rem);
+  cursor:pointer;
+  transition:all 0.15s;
+  width:100%;
+}
+
+.btn-accent{
+  background:#e8ff47;
+  color:#000;
+  box-shadow:0 0 10px #e8ff47;
+}
+
+.btn-accent:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 20px #e8ff47;
+}
+
+.btn-ghost{
+  background:transparent;
+  color:#e8ff47;
+  border:2px solid #e8ff47;
+}
+
+.btn-ghost:hover{
+  background:#e8ff47;
+  color:#000;
+}
+</style>
+</head>
+
+<body>
+
+<div class="screen">
+
+  <div class="bolt">⚡</div>
+
+  <div class="logo">GRAMMARBLITZ</div>
+
+  <div class="char-parade"></div>
+
+  <div class="marquee">
+    <span>
+      ★ INSERT COIN ★ PLAYER ONE READY ★ GRAMMAR IS POWER ★ LEVEL UP YOUR ENGLISH ★ INSERT COIN ★
+    </span>
+  </div>
+
+  <div class="coin">► INSERT COIN ◄</div>
+
+  <div class="home-btns">
+    <button class="btn-accent" id="playBtn" onclick="location.href='game.html?mode=modals'">▶ MODALS</button>
+    <button class="btn-accent" style="background:var(--accent3);color:#000;box-shadow:0 0 10px var(--accent3)" onclick="location.href='game.html?mode=tenses'">▶ TENSES</button>
+    <button class="btn-accent" style="background:var(--purple);color:#000;box-shadow:0 0 10px var(--purple)" onclick="location.href='game.html?mode=mixed'">▶ MIXED</button>
+    <button class="btn-ghost" onclick="location.href='multiplayer.html'">✕ VS MODE</button>
+  </div>
+
+</div>
+
+<script type="module">
+import { CHARS, startTheme, playClick } from './shared.js';
+
+/* ── CHARACTERS ───────────── */
+const parade = document.querySelector('.char-parade');
+
+parade.innerHTML = Object.values(CHARS)
+  .map(c => `<div class="parade-char">${c.svg.idle}</div>`)
+  .join('');
+
+/* ── AUDIO ───────────────── */
+let started=false;
+document.addEventListener('pointerdown',()=>{
+  if(!started){
+    setTimeout(()=>startTheme(1),180);
+    started=true;
+  }
+},{once:true});
+
+/* ── PLAY ────────────────── */
+// Mode buttons handled inline via onclick
+</script>
+
+</body>
+</html>
